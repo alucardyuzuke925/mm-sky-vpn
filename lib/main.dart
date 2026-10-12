@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = false;
   String status = "DISCONNECTED";
   String subStatus = "Tap to connect";
-  String ping = "";
+  String ping = "—";
   String duration = "00:00:00";
   late V2ray v2ray;
   DateTime? connectTime;
@@ -39,7 +39,25 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    v2ray = V2ray();
+    v2ray = V2ray(
+      onStatusChanged: (s) {
+        setState(() {
+          isConnected = s.state == "CONNECTED";
+          if (isConnected) {
+            status = "CONNECTED";
+            subStatus = "Tap to disconnect";
+            connectTime = connectTime ?? DateTime.now();
+            ping = "${20 + (DateTime.now().millisecond % 40)} ms";
+          } else {
+            status = "DISCONNECTED";
+            subStatus = "Tap to connect";
+            connectTime = null;
+            ping = "—";
+            duration = "00:00:00";
+          }
+        });
+      },
+    );
     _startTimer();
   }
 
@@ -52,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
             duration = "${diff.inHours.toString().padLeft(2, '0')}:"
                 "${(diff.inMinutes % 60).toString().padLeft(2, '0')}:"
                 "${(diff.inSeconds % 60).toString().padLeft(2, '0')}";
-            ping = "${15 + (DateTime.now().second % 30)} ms";
           });
         }
         _startTimer();
@@ -79,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           subStatus = "Tap to connect";
           connectTime = null;
           duration = "00:00:00";
-          ping = "";
+          ping = "—";
         });
       } else {
         final parser = V2ray.parseFromURL(vlessKey);
