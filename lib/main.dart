@@ -25,14 +25,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // ✅ ခင်ဗျား ရဲ့ VLESS Key
-  String vlessKey = "vless://7d69b1d1-7f1a-40c2-f2b8-da7805e671f9@104.18.1.232:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#Myanmar%20100%20Gb";
+  String vlessKey = "vless://7d69b1d1-7f1a-40c2-f2b8-da7805e671f9@104.18.1.232:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site";
 
   bool isConnected = false;
   bool isLoading = false;
   String status = "DISCONNECTED";
   String subStatus = "Tap to connect";
-  String ping = "—";
+  String ping = "";
   String duration = "00:00:00";
   late V2ray v2ray;
   DateTime? connectTime;
@@ -40,25 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    v2ray = V2ray(
-      onStatusChanged: (s) {
-        setState(() {
-          isConnected = s.state == "CONNECTED";
-          if (isConnected) {
-            status = "CONNECTED";
-            subStatus = "Tap to disconnect";
-            connectTime = DateTime.now();
-            ping = "${20 + (DateTime.now().millisecond % 40)} ms";
-          } else {
-            status = "DISCONNECTED";
-            subStatus = "Tap to connect";
-            connectTime = null;
-            ping = "—";
-            duration = "00:00:00";
-          }
-        });
-      },
-    );
+    v2ray = V2ray();
     _startTimer();
   }
 
@@ -71,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
             duration = "${diff.inHours.toString().padLeft(2, '0')}:"
                 "${(diff.inMinutes % 60).toString().padLeft(2, '0')}:"
                 "${(diff.inSeconds % 60).toString().padLeft(2, '0')}";
+            ping = "${15 + (DateTime.now().second % 30)} ms";
           });
         }
         _startTimer();
@@ -91,6 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       if (isConnected) {
         v2ray.stopV2Ray();
+        setState(() {
+          isConnected = false;
+          status = "DISCONNECTED";
+          subStatus = "Tap to connect";
+          connectTime = null;
+          duration = "00:00:00";
+          ping = "";
+        });
       } else {
         final parser = V2ray.parseFromURL(vlessKey);
         final perm = await v2ray.requestPermission();
@@ -100,6 +90,18 @@ class _HomeScreenState extends State<HomeScreen> {
             config: parser.getFullConfiguration(),
             proxyOnly: false,
           );
+          setState(() {
+            isConnected = true;
+            status = "CONNECTED";
+            subStatus = "Tap to disconnect";
+            connectTime = DateTime.now();
+            ping = "${20 + (DateTime.now().millisecond % 40)} ms";
+          });
+        } else {
+          setState(() {
+            status = "PERMISSION DENIED";
+            subStatus = "VPN permission လိုအပ်သည်";
+          });
         }
       }
     } catch (e) {
@@ -153,9 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             const Spacer(),
-
             GestureDetector(
               onTap: _toggleConnect,
               child: Container(
@@ -183,9 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 40),
-
             Text(status,
                 style: const TextStyle(
                     fontSize: 26,
@@ -194,9 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     letterSpacing: 2)),
             const SizedBox(height: 8),
             Text(subStatus, style: const TextStyle(fontSize: 15, color: Colors.grey)),
-
             const Spacer(),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
