@@ -24,6 +24,21 @@ jobs:
           flutter-version: '3.24.5'
           channel: 'stable'
 
+      - name: Generate Android structure
+        run: |
+          mkdir -p /tmp/temp_project
+          cd /tmp/temp_project
+          flutter create --org com.example --project-name mm_sky .
+          cp -r android/. $GITHUB_WORKSPACE/android/
+          cp -r ios $GITHUB_WORKSPACE/ 2>/dev/null || true
+          cp -r web $GITHUB_WORKSPACE/ 2>/dev/null || true
+          cp -r linux $GITHUB_WORKSPACE/ 2>/dev/null || true
+          cp -r macos $GITHUB_WORKSPACE/ 2>/dev/null || true
+          cp -r windows $GITHUB_WORKSPACE/ 2>/dev/null || true
+          cp .gitignore $GITHUB_WORKSPACE/ 2>/dev/null || true
+          cp .metadata $GITHUB_WORKSPACE/ 2>/dev/null || true
+          cp analysis_options.yaml $GITHUB_WORKSPACE/ 2>/dev/null || true
+
       - name: Get dependencies
         run: flutter pub get
 
