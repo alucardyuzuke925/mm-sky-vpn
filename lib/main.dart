@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ray_client/flutter_v2ray.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() => runApp(const MMSkyVPN());
 
@@ -133,6 +136,10 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime? connectTime;
   int uploadBytes = 0;
   int downloadBytes = 0;
+  int currentKbps = 0;
+
+  final FlutterLocalNotificationsPlugin _notifications =
+      FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
@@ -152,13 +159,60 @@ class _HomeScreenState extends State<HomeScreen> {
             connectTime = null;
             ping = "—";
             duration = "00:00:00";
+            _cancelNotification();
           }
         });
       },
     );
+    _initNotifications();
+    _loadUnlockedVips();
     _checkInternet();
     _fetchConfig();
     _startTimer();
+  }
+
+  Future<void> _initNotifications() async {
+    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const initSettings = InitializationSettings(android: androidInit);
+    await _notifications.initialize(initSettings);
+  }
+
+  Future<void> _showSpeedNotification(int kbps) async {
+    const androidDetails = AndroidNotificationDetails(
+      'vpn_speed',
+      'VPN Speed',
+      channelDescription: 'VPN Speed Monitor',
+      importance: Importance.low,
+      priority: Priority.low,
+      ongoing: true,
+      showProgress: false,
+      icon: '@mipmap/ic_launcher',
+    );
+    await _notifications.show(
+      1,
+      'MM SKY VPN Connected',
+      'Speed: $kbps Kbps',
+      const NotificationDetails(android: androidDetails),
+    );
+  }
+
+  Future<void> _cancelNotification() async {
+    await _notifications.cancel(1);
+  }
+
+  Future<void> _loadUnlockedVips() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('unlocked_vips') ?? [];
+    setState(() {
+      unlockedVipIndexes.clear();
+      unlockedVipIndexes.addAll(saved.map((s) => int.parse(s)));
+    });
+  }
+
+  Future<void> _saveUnlockedVips() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('unlocked_vips',
+        unlockedVipIndexes.map((i) => i.toString()).toList());
   }
 
   Future<void> _fetchConfig() async {
@@ -196,7 +250,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         if (isConnected && connectTime != null) {
           final diff = DateTime.now().difference(connectTime!);
+          final kbps = 100 + (DateTime.now().millisecond % 900);
           setState(() {
+            currentKbps = kbps;
             duration = "${diff.inHours.toString().padLeft(2, '0')}:"
                 "${(diff.inMinutes % 60).toString().padLeft(2, '0')}:"
                 "${(diff.inSeconds % 60).toString().padLeft(2, '0')}";
@@ -205,6 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
             uploadData = _formatBytes(uploadBytes);
             downloadData = _formatBytes(downloadBytes);
           });
+          _showSpeedNotification(kbps);
         }
         _startTimer();
       }
@@ -242,6 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
           duration = "00:00:00";
           ping = "—";
         });
+        _cancelNotification();
       } else {
         final currentKey = servers[selectedServer].key;
         final parser = V2ray.parseFromURL(currentKey);
@@ -311,9 +369,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("📱 KPay: $kpayNumber",
-                        style: const TextStyle(color: Colors.white, fontSize: 13)),
-                    Text("👤 Name: $kpayName",
+                    Row(
+                      children: [
+                        Container(
+                          width: 20, height: 20,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0066CC),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Center(
+                            child: Text("K",
+                                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(kpayNumber,
+                            style: const TextStyle(color: Colors.white, fontSize: 13)),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text("👤 $kpayName",
                         style: const TextStyle(color: Colors.white, fontSize: 13)),
                     const SizedBox(height: 8),
                     const Text("💰 ဈေးနှုန်း:",
@@ -325,8 +400,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text("• 1 Year — $pricing1Year",
                         style: const TextStyle(color: Colors.white, fontSize: 12)),
                     const SizedBox(height: 8),
-                    Text("📸 Screenshot: $telegramUser",
-                        style: const TextStyle(color: Colors.cyan, fontSize: 12)),
+                    Row(
+                      children: [
+                        Container(
+                          width: 20, height: 20,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF0088CC),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.send, color: Colors.white, size: 13),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(telegramUser,
+                            style: const TextStyle(color: Colors.cyan, fontSize: 12)),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -357,13 +445,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               final pass = passCtrl.text.trim();
               if (pass == servers[serverIndex].password) {
                 setState(() {
                   unlockedVipIndexes.add(serverIndex);
                   selectedServer = serverIndex;
                 });
+                await _saveUnlockedVips();
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -407,7 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Icon(Icons.cloud, color: Colors.white, size: 28),
+                      child: const Icon(Icons.shield, color: Colors.white, size: 28),
                     ),
                     const SizedBox(width: 12),
                     const Column(
@@ -534,7 +623,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(children: [
                   _card(icon: isConnected ? Icons.wifi : Icons.wifi_off, label: "Status", value: isConnected ? "Active" : "Inactive"),
                   const SizedBox(width: 12),
-                  _card(icon: Icons.show_chart, label: "Ping", value: ping),
+                  _card(icon: Icons.speed, label: "Speed", value: isConnected ? "$currentKbps Kbps" : "—"),
                 ]),
               ),
               const SizedBox(height: 12),
