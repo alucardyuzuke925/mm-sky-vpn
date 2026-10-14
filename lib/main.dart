@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_v2ray_client/flutter_v2ray.dart';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(const MMSkyVPN());
 
@@ -22,8 +24,17 @@ class MMSkyVPN extends StatelessWidget {
 class ServerInfo {
   final String name;
   final String key;
-  ServerInfo({required this.name, required this.key});
+  final bool isVip;
+  final String? password;
+  ServerInfo({
+    required this.name,
+    required this.key,
+    this.isVip = false,
+    this.password,
+  });
 }
+
+const String configUrl = "https://raw.githubusercontent.com/alucardyuzuke925/mm-sky-vpn/main/config.json";
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,22 +43,83 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String kpayNumber = "09782884151";
+  String kpayName = "Aung Pyae Soe";
+  String telegramUser = "@VIPkey90";
+  String pricing1Month = "5,000 MMK";
+  String pricing3Months = "23,000 MMK";
+  String pricing1Year = "80,000 MMK";
+
   final List<ServerInfo> servers = [
     ServerInfo(
-      name: "Myanmar All sim saver 1",
-      key: "vless://7d69b1d1-7f1a-40c2-f2b8-da7805e671f9@104.18.1.232:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#Myanmar%20All%20sim%20saver%201",
+      name: "🇲🇲 Myanmar All sim saver 1",
+      key: "vless://7d69b1d1-7f1a-40c2-f2b8-da7805e671f9@104.18.1.232:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#Free",
+      isVip: false,
     ),
     ServerInfo(
-      name: "Myanmar All sim saver 2",
-      key: "vless://1dc4f5c7-3373-4ffb-ff0d-b14b18593fe8@104.18.1.232:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#Myanmar%20All%20sim%20saver%202",
+      name: "🔒 🇲🇲 Mytel VIP Saver 1",
+      key: "vless://33b2a768-f03b-4336-a51a-21e1b52efaa1@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP1",
+      isVip: true,
+      password: "1VIP0",
     ),
     ServerInfo(
-      name: "Mytel vless-Myanmar Mytel Sim only",
-      key: "vless://33b2a768-f03b-4336-a51a-21e1b52efaa1@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#Mytel%20vless-Myanmar%20Mytel%20Sim%20only",
+      name: "🔒 🇲🇲 Mytel VIP Saver 2",
+      key: "vless://46506efd-d73a-4621-a6ed-929f72c30c29@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP2",
+      isVip: true,
+      password: "2VIP6",
+    ),
+    ServerInfo(
+      name: "🔒 🇲🇲 Mytel VIP Saver 3",
+      key: "vless://2d9f85dd-55f8-4388-e920-90e68fea1d96@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP3",
+      isVip: true,
+      password: "3VIP2",
+    ),
+    ServerInfo(
+      name: "🔒 🇲🇲 Mytel VIP Saver 4",
+      key: "vless://5e554b9b-8c34-494a-d817-34f59bc971c3@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP4",
+      isVip: true,
+      password: "4VIP9",
+    ),
+    ServerInfo(
+      name: "🔒 🇲🇲 Mytel VIP Saver 5",
+      key: "vless://41df405d-6b57-47d1-93f7-9a0913dcdc43@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP5",
+      isVip: true,
+      password: "5VIP8",
+    ),
+    ServerInfo(
+      name: "🔒 🇲🇲 Mytel VIP Saver 6",
+      key: "vless://e089bb6e-a5c3-4b18-9a93-dabc48936a6d@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP6",
+      isVip: true,
+      password: "6VIP0",
+    ),
+    ServerInfo(
+      name: "🔒 🇲🇲 Mytel VIP Saver 7",
+      key: "vless://5d1eff65-8a05-4604-b750-1de8b214da67@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP7",
+      isVip: true,
+      password: "7VIP6",
+    ),
+    ServerInfo(
+      name: "🔒 🇲🇲 Mytel VIP Saver 8",
+      key: "vless://2e3fa400-99dc-4a86-fb89-05116a2bf80a@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP8",
+      isVip: true,
+      password: "8VIP1",
+    ),
+    ServerInfo(
+      name: "🔒 🇲🇲 Mytel VIP Saver 9",
+      key: "vless://774a2eba-2c26-485b-daf3-a0eb1fe8455c@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP9",
+      isVip: true,
+      password: "9VIP0",
+    ),
+    ServerInfo(
+      name: "🔒 🇲🇲 Mytel VIP Saver 10",
+      key: "vless://7eb3c7da-ce0d-4f41-d1e2-b20904e9b255@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP10",
+      isVip: true,
+      password: "10VIP2",
     ),
   ];
 
   int selectedServer = 0;
+  final Set<int> unlockedVipIndexes = {};
   bool isConnected = false;
   bool isLoading = false;
   bool hasInternet = true;
@@ -57,9 +129,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String duration = "00:00:00";
   String uploadData = "0 B";
   String downloadData = "0 B";
-  String expiryText = "365 days left";
-  int daysLeft = 365;
-  bool isExpired = false;
   late V2ray v2ray;
   DateTime? connectTime;
   int uploadBytes = 0;
@@ -88,7 +157,25 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
     _checkInternet();
+    _fetchConfig();
     _startTimer();
+  }
+
+  Future<void> _fetchConfig() async {
+    try {
+      final response = await http.get(Uri.parse(configUrl));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          kpayNumber = data['kpay'] ?? kpayNumber;
+          kpayName = data['kpay_name'] ?? kpayName;
+          telegramUser = data['telegram'] ?? telegramUser;
+          pricing1Month = data['pricing_1month'] ?? pricing1Month;
+          pricing3Months = data['pricing_3months'] ?? pricing3Months;
+          pricing1Year = data['pricing_1year'] ?? pricing1Year;
+        });
+      }
+    } catch (e) {}
   }
 
   Future<bool> _checkInternet() async {
@@ -192,7 +279,113 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       return;
     }
+    if (servers[index].isVip && !unlockedVipIndexes.contains(index)) {
+      _showVipDialog(index);
+      return;
+    }
     setState(() => selectedServer = index);
+  }
+
+  void _showVipDialog(int serverIndex) {
+    final passCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: const Text("🔒 VIP Server", style: TextStyle(color: Colors.white)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("VIP Server သုံးဖို့ ငွေ ပေးပါ",
+                  style: TextStyle(color: Colors.orange, fontSize: 13, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0A1628),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF334155)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("📱 KPay: $kpayNumber",
+                        style: const TextStyle(color: Colors.white, fontSize: 13)),
+                    Text("👤 Name: $kpayName",
+                        style: const TextStyle(color: Colors.white, fontSize: 13)),
+                    const SizedBox(height: 8),
+                    const Text("💰 ဈေးနှုန်း:",
+                        style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text("• 1 Month — $pricing1Month",
+                        style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    Text("• 3 Months — $pricing3Months",
+                        style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    Text("• 1 Year — $pricing1Year",
+                        style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    const SizedBox(height: 8),
+                    Text("📸 Screenshot: $telegramUser",
+                        style: const TextStyle(color: Colors.cyan, fontSize: 12)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text("Password ရပြီးရင် ဒီမှာ ထည့်ပါ:",
+                  style: TextStyle(color: Colors.grey, fontSize: 12)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: passCtrl,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Password",
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: const Color(0xFF0A1628),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Color(0xFF334155)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final pass = passCtrl.text.trim();
+              if (pass == servers[serverIndex].password) {
+                setState(() {
+                  unlockedVipIndexes.add(serverIndex);
+                  selectedServer = serverIndex;
+                });
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("✓ VIP Server ဖွင့်ပြီးပါပြီ"),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("❌ Password မှားသည်"),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0EA5E9)),
+            child: const Text("Unlock", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -266,23 +459,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     dropdownColor: const Color(0xFF1E293B),
                     icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
                     items: List.generate(servers.length, (i) {
+                      final server = servers[i];
+                      final isLocked = server.isVip && !unlockedVipIndexes.contains(i);
                       return DropdownMenuItem<int>(
                         value: i,
                         child: Row(
                           children: [
                             Icon(
-                              isConnected && selectedServer == i
-                                  ? Icons.check_circle
-                                  : Icons.dns,
-                              color: const Color(0xFF0EA5E9),
+                              isLocked ? Icons.lock : Icons.dns,
+                              color: isLocked ? Colors.orange : const Color(0xFF0EA5E9),
                               size: 20,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: Text(servers[i].name,
-                                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                              child: Text(server.name,
+                                  style: TextStyle(
+                                    color: isLocked ? Colors.orange : Colors.white,
+                                    fontSize: 13),
                                   overflow: TextOverflow.ellipsis),
                             ),
+                            if (isLocked)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text("VIP",
+                                    style: TextStyle(color: Colors.orange, fontSize: 10)),
+                              ),
                           ],
                         ),
                       );
@@ -348,15 +553,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   _card(icon: Icons.arrow_upward, label: "Upload", value: uploadData),
                   const SizedBox(width: 12),
                   _card(icon: Icons.arrow_downward, label: "Download", value: downloadData),
-                ]),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(children: [
-                  _card(icon: Icons.calendar_today, label: "Expiry", value: expiryText),
-                  const SizedBox(width: 12),
-                  _card(icon: Icons.data_usage, label: "Days Left", value: "$daysLeft"),
                 ]),
               ),
               const SizedBox(height: 30),
