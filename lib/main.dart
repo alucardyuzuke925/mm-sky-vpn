@@ -525,15 +525,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Row(
                   children: [
+                    // ⭐ VPN ပုံ (Header Logo)
                     Container(
                       width: 50, height: 50,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0EA5E9), Color(0xFF06B6D4)],
-                        ),
+                        color: Colors.black,
                         borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0EA5E9).withOpacity(0.4),
+                            blurRadius: 15,
+                          ),
+                        ],
                       ),
-                      child: const Icon(Icons.shield, color: Colors.white, size: 28),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.asset(
+                          '8002c5a5f554f1ef1510b9f561cc1775.jpg',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Column(
