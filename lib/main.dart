@@ -6,6 +6,7 @@ import 'package:flutter_v2ray_client/flutter_v2ray.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(const MMSkyVPN());
 
@@ -46,9 +47,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String kpayNumber = "09782884151";
-  String kpayName = "Aung Pyae Soe";
+  String kpayNumber = "09698624401";
+  String kpayName = "San Dar Soe";
   String telegramUser = "@VIPkey90";
+  String messengerLink = "https://www.facebook.com/share/1CN89ohAwG/";
   String pricing1Month = "5,000 MMK";
   String pricing3Months = "23,000 MMK";
   String pricing1Year = "80,000 MMK";
@@ -224,6 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
           kpayNumber = data['kpay'] ?? kpayNumber;
           kpayName = data['kpay_name'] ?? kpayName;
           telegramUser = data['telegram'] ?? telegramUser;
+          messengerLink = data['messenger'] ?? messengerLink;
           pricing1Month = data['pricing_1month'] ?? pricing1Month;
           pricing3Months = data['pricing_3months'] ?? pricing3Months;
           pricing1Year = data['pricing_1year'] ?? pricing1Year;
@@ -344,6 +347,20 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => selectedServer = index);
   }
 
+  Future<void> _openTelegram() async {
+    final url = Uri.parse('https://t.me/${telegramUser.replaceAll("@", "")}');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Future<void> _openMessenger() async {
+    final url = Uri.parse(messengerLink);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
   void _showVipDialog(int serverIndex) {
     final passCtrl = TextEditingController();
     showDialog(
@@ -390,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 4),
                     Text("👤 $kpayName",
                         style: const TextStyle(color: Colors.white, fontSize: 13)),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     const Text("💰 ဈေးနှုန်း:",
                         style: TextStyle(color: Colors.grey, fontSize: 12)),
                     Text("• 1 Month — $pricing1Month",
@@ -399,20 +416,40 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: const TextStyle(color: Colors.white, fontSize: 12)),
                     Text("• 1 Year — $pricing1Year",
                         style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    const SizedBox(height: 10),
+                    const Text("💸 ငွေလွဲပြီးရင် ပြေစာ ပို့ပေးပါ:",
+                        style: TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Container(
-                          width: 20, height: 20,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF0088CC),
-                            shape: BoxShape.circle,
+                        GestureDetector(
+                          onTap: _openTelegram,
+                          child: Container(
+                            width: 36, height: 36,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF0088CC),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.send, color: Colors.white, size: 20),
                           ),
-                          child: const Icon(Icons.send, color: Colors.white, size: 13),
                         ),
-                        const SizedBox(width: 8),
-                        Text(telegramUser,
-                            style: const TextStyle(color: Colors.cyan, fontSize: 12)),
+                        const SizedBox(width: 12),
+                        GestureDetector(
+                          onTap: _openMessenger,
+                          child: Container(
+                            width: 36, height: 36,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF0084FF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.message, color: Colors.white, size: 20),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text("ပုံကို နှိပ်ပါ",
+                              style: TextStyle(color: Colors.grey, fontSize: 11)),
+                        ),
                       ],
                     ),
                   ],
