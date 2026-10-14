@@ -348,16 +348,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openTelegram() async {
-    final url = Uri.parse('https://t.me/${telegramUser.replaceAll("@", "")}');
-    if (await canLaunchUrl(url)) {
+    try {
+      final url = Uri.parse('https://t.me/${telegramUser.replaceAll("@", "")}');
       await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Telegram ဖွင့်လို့ မရပါ: $e")),
+      );
     }
   }
 
   Future<void> _openMessenger() async {
-    final url = Uri.parse(messengerLink);
-    if (await canLaunchUrl(url)) {
+    try {
+      final url = Uri.parse(messengerLink);
       await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Messenger ဖွင့်လို့ မရပါ: $e")),
+      );
     }
   }
 
@@ -525,7 +533,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Row(
                   children: [
-                    // ⭐ VPN ပုံ (Header Logo)
                     Container(
                       width: 50, height: 50,
                       decoration: BoxDecoration(
