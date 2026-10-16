@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "238355925195",
+    "firebase_url": "https://mm-sky-vpn-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "mm-sky-vpn",
+    "storage_bucket": "mm-sky-vpn.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:238355925195:android:ad63f88d2e2f67fad2f34e",
+        "android_client_info": {
+          "package_name": "com.example.mm_sky"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMKOlDN_mJgA1pO7xDTYC1ozcEfF3As3U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
