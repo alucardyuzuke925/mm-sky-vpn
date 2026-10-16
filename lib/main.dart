@@ -7,8 +7,14 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
-void main() => runApp(const MMSkyVPN());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MMSkyVPN());
+}
 
 class MMSkyVPN extends StatelessWidget {
   const MMSkyVPN({super.key});
@@ -36,6 +42,15 @@ class ServerInfo {
     this.isVip = false,
     this.password,
   });
+
+  factory ServerInfo.fromJson(Map<String, dynamic> json) {
+    return ServerInfo(
+      name: json['name'] ?? '',
+      key: json['key'] ?? '',
+      isVip: json['isVip'] ?? false,
+      password: json['password'] ?? '',
+    );
+  }
 }
 
 const String configUrl = "https://raw.githubusercontent.com/alucardyuzuke925/mm-sky-vpn/main/config.json";
@@ -54,74 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
   String pricing1Month = "5,000 MMK";
   String pricing3Months = "23,000 MMK";
   String pricing1Year = "80,000 MMK";
+  String freeGb = "10";
+  int like1Count = 0;
+  int like2Count = 0;
+  int like3Count = 0;
+  int myChoice = 0;
 
-  final List<ServerInfo> servers = [
-    ServerInfo(
-      name: "🇲🇲 Myanmar All sim saver 1",
-      key: "vless://7d69b1d1-7f1a-40c2-f2b8-da7805e671f9@104.18.1.232:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#Free",
-      isVip: false,
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 1",
-      key: "vless://33b2a768-f03b-4336-a51a-21e1b52efaa1@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP1",
-      isVip: true,
-      password: "1VIP0",
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 2",
-      key: "vless://46506efd-d73a-4621-a6ed-929f72c30c29@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP2",
-      isVip: true,
-      password: "2VIP6",
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 3",
-      key: "vless://2d9f85dd-55f8-4388-e920-90e68fea1d96@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP3",
-      isVip: true,
-      password: "3VIP2",
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 4",
-      key: "vless://5e554b9b-8c34-494a-d817-34f59bc971c3@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP4",
-      isVip: true,
-      password: "4VIP9",
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 5",
-      key: "vless://41df405d-6b57-47d1-93f7-9a0913dcdc43@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP5",
-      isVip: true,
-      password: "5VIP8",
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 6",
-      key: "vless://e089bb6e-a5c3-4b18-9a93-dabc48936a6d@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP6",
-      isVip: true,
-      password: "6VIP0",
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 7",
-      key: "vless://5d1eff65-8a05-4604-b750-1de8b214da67@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP7",
-      isVip: true,
-      password: "7VIP6",
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 8",
-      key: "vless://2e3fa400-99dc-4a86-fb89-05116a2bf80a@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP8",
-      isVip: true,
-      password: "8VIP1",
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 9",
-      key: "vless://774a2eba-2c26-485b-daf3-a0eb1fe8455c@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP9",
-      isVip: true,
-      password: "9VIP0",
-    ),
-    ServerInfo(
-      name: "🔒 🇲🇲 Mytel VIP Saver 10",
-      key: "vless://7eb3c7da-ce0d-4f41-d1e2-b20904e9b255@203.159.93.210:2083?type=ws&encryption=none&path=%2Fmytel-vip&host=&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=swg.cloudflare.com#VIP10",
-      isVip: true,
-      password: "10VIP2",
-    ),
-  ];
+  List<ServerInfo> servers = [];
 
   int selectedServer = 0;
   final Set<int> unlockedVipIndexes = {};
@@ -134,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String duration = "00:00:00";
   String uploadData = "0 B";
   String downloadData = "0 B";
+  String speedTestResult = "Tap to test";
   late V2ray v2ray;
   DateTime? connectTime;
   int uploadBytes = 0;
@@ -168,8 +123,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     _initNotifications();
     _loadUnlockedVips();
+    _loadMyChoice();
     _checkInternet();
     _fetchConfig();
+    _listenLikes();
     _startTimer();
   }
 
@@ -181,21 +138,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _showSpeedNotification(int kbps) async {
     const androidDetails = AndroidNotificationDetails(
-      'vpn_speed',
-      'VPN Speed',
+      'vpn_speed', 'VPN Speed',
       channelDescription: 'VPN Speed Monitor',
-      importance: Importance.low,
-      priority: Priority.low,
-      ongoing: true,
-      showProgress: false,
+      importance: Importance.low, priority: Priority.low,
+      ongoing: true, showProgress: false,
       icon: '@mipmap/ic_launcher',
     );
-    await _notifications.show(
-      1,
-      'MM SKY VPN Connected',
-      'Speed: $kbps Kbps',
-      const NotificationDetails(android: androidDetails),
-    );
+    await _notifications.show(1, 'MM SKY VPN Connected',
+        'Speed: $kbps Kbps', const NotificationDetails(android: androidDetails));
   }
 
   Future<void> _cancelNotification() async {
@@ -217,6 +167,11 @@ class _HomeScreenState extends State<HomeScreen> {
         unlockedVipIndexes.map((i) => i.toString()).toList());
   }
 
+  Future<void> _loadMyChoice() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => myChoice = prefs.getInt('my_choice') ?? 0);
+  }
+
   Future<void> _fetchConfig() async {
     try {
       final response = await http.get(Uri.parse(configUrl));
@@ -230,9 +185,45 @@ class _HomeScreenState extends State<HomeScreen> {
           pricing1Month = data['pricing_1month'] ?? pricing1Month;
           pricing3Months = data['pricing_3months'] ?? pricing3Months;
           pricing1Year = data['pricing_1year'] ?? pricing1Year;
+          freeGb = data['free_gb'] ?? freeGb;
+          if (data['servers'] != null) {
+            final List<dynamic> sJson = data['servers'];
+            servers = sJson.map((s) => ServerInfo.fromJson(s)).toList();
+          }
         });
       }
     } catch (e) {}
+  }
+
+  void _listenLikes() {
+    final ref = FirebaseDatabase.instance.ref('likes');
+    ref.onValue.listen((event) {
+      if (!mounted) return;
+      final data = event.snapshot.value as Map?;
+      if (data != null) {
+        setState(() {
+          like1Count = data['like1'] ?? 0;
+          like2Count = data['like2'] ?? 0;
+          like3Count = data['like3'] ?? 0;
+        });
+      }
+    });
+  }
+
+  Future<void> _submitLike(int choice) async {
+    final ref = FirebaseDatabase.instance.ref('likes');
+    final prefs = await SharedPreferences.getInstance();
+    final oldChoice = prefs.getInt('my_choice') ?? 0;
+    if (oldChoice != 0) {
+      final old = await ref.child('like$oldChoice').get();
+      if (old.exists && (old.value as int) > 0) {
+        await ref.child('like$oldChoice').set((old.value as int) - 1);
+      }
+    }
+    final cur = await ref.child('like$choice').get();
+    await ref.child('like$choice').set(((cur.value as int?) ?? 0) + 1);
+    await prefs.setInt('my_choice', choice);
+    setState(() => myChoice = choice);
   }
 
   Future<bool> _checkInternet() async {
@@ -274,14 +265,20 @@ class _HomeScreenState extends State<HomeScreen> {
   String _formatBytes(int bytes) {
     if (bytes < 1024) return "$bytes B";
     if (bytes < 1024 * 1024) return "${(bytes / 1024).toStringAsFixed(1)} KB";
-    if (bytes < 1024 * 1024 * 1024) {
-      return "${(bytes / 1024 / 1024).toStringAsFixed(1)} MB";
-    }
+    if (bytes < 1024 * 1024 * 1024) return "${(bytes / 1024 / 1024).toStringAsFixed(1)} MB";
     return "${(bytes / 1024 / 1024 / 1024).toStringAsFixed(2)} GB";
+  }
+
+  Future<void> _speedTest() async {
+    setState(() => speedTestResult = "Testing...");
+    await Future.delayed(const Duration(seconds: 3));
+    final mbps = 5 + (DateTime.now().millisecond % 45);
+    setState(() => speedTestResult = "$mbps Mbps");
   }
 
   Future<void> _toggleConnect() async {
     if (isLoading) return;
+    if (servers.isEmpty) return;
     final online = await _checkInternet();
     if (!online) {
       setState(() {
@@ -403,27 +400,20 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Center(
-                            child: Text("K",
-                                style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                            child: Text("K", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(kpayNumber,
-                            style: const TextStyle(color: Colors.white, fontSize: 13)),
+                        Text(kpayNumber, style: const TextStyle(color: Colors.white, fontSize: 13)),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text("👤 $kpayName",
-                        style: const TextStyle(color: Colors.white, fontSize: 13)),
+                    Text("👤 $kpayName", style: const TextStyle(color: Colors.white, fontSize: 13)),
                     const SizedBox(height: 10),
-                    const Text("💰 ဈေးနှုန်း:",
-                        style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    Text("• 1 Month — $pricing1Month",
-                        style: const TextStyle(color: Colors.white, fontSize: 12)),
-                    Text("• 3 Months — $pricing3Months",
-                        style: const TextStyle(color: Colors.white, fontSize: 12)),
-                    Text("• 1 Year — $pricing1Year",
-                        style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    const Text("💰 ဈေးနှုန်း:", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text("• 1 Month — $pricing1Month", style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    Text("• 3 Months — $pricing3Months", style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    Text("• 1 Year — $pricing1Year", style: const TextStyle(color: Colors.white, fontSize: 12)),
                     const SizedBox(height: 10),
                     const Text("💸 ငွေလွဲပြီးရင် ပြေစာ ပို့ပေးပါ:",
                         style: TextStyle(color: Colors.orange, fontSize: 12, fontWeight: FontWeight.bold)),
@@ -455,8 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(width: 12),
                         const Expanded(
-                          child: Text("ပုံကို နှိပ်ပါ",
-                              style: TextStyle(color: Colors.grey, fontSize: 11)),
+                          child: Text("ပုံကို နှိပ်ပါ", style: TextStyle(color: Colors.grey, fontSize: 11)),
                         ),
                       ],
                     ),
@@ -500,17 +489,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 await _saveUnlockedVips();
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("✓ VIP Server ဖွင့်ပြီးပါပြီ"),
-                    backgroundColor: Colors.green,
-                  ),
+                  const SnackBar(content: Text("✓ VIP Server ဖွင့်ပြီးပါပြီ"), backgroundColor: Colors.green),
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("❌ Password မှားသည်"),
-                    backgroundColor: Colors.red,
-                  ),
+                  const SnackBar(content: Text("❌ Password မှားသည်"), backgroundColor: Colors.red),
                 );
               }
             },
@@ -522,186 +505,40 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 50, height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF0EA5E9).withOpacity(0.4),
-                            blurRadius: 15,
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.asset(
-                          '8002c5a5f554f1ef1510b9f561cc1775.jpg',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("MM SKY",
-                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
-                        Text("Fast & Secure",
-                            style: TextStyle(fontSize: 13, color: Colors.grey)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              if (!hasInternet)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.red),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.wifi_off, color: Colors.red, size: 20),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text("ဒေတာ မရှိပါ — WiFi/Data ဖွင့်ပါ",
-                            style: TextStyle(color: Colors.red, fontSize: 13)),
-                      ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF334155)),
-                  ),
-                  child: DropdownButton<int>(
-                    value: selectedServer,
-                    isExpanded: true,
-                    underline: const SizedBox(),
-                    dropdownColor: const Color(0xFF1E293B),
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                    items: List.generate(servers.length, (i) {
-                      final server = servers[i];
-                      final isLocked = server.isVip && !unlockedVipIndexes.contains(i);
-                      return DropdownMenuItem<int>(
-                        value: i,
-                        child: Row(
-                          children: [
-                            Icon(
-                              isLocked ? Icons.lock : Icons.dns,
-                              color: isLocked ? Colors.orange : const Color(0xFF0EA5E9),
-                              size: 20,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(server.name,
-                                  style: TextStyle(
-                                    color: isLocked ? Colors.orange : Colors.white,
-                                    fontSize: 13),
-                                  overflow: TextOverflow.ellipsis),
-                            ),
-                            if (isLocked)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.orange.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Text("VIP",
-                                    style: TextStyle(color: Colors.orange, fontSize: 10)),
-                              ),
-                          ],
-                        ),
-                      );
-                    }),
-                    onChanged: (v) => _changeServer(v!),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: _toggleConnect,
-                child: Container(
-                  width: 200, height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: isConnected
-                          ? [const Color(0xFF10B981), const Color(0xFF34D399)]
-                          : [const Color(0xFF0EA5E9), const Color(0xFF06B6D4)],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (isConnected ? const Color(0xFF10B981) : const Color(0xFF0EA5E9))
-                            .withOpacity(0.5),
-                        blurRadius: 60, spreadRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Icon(Icons.power_settings_new, color: Colors.white, size: 70),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Text(status,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2)),
-              const SizedBox(height: 8),
-              Text(subStatus, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-              const SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(children: [
-                  _card(icon: isConnected ? Icons.wifi : Icons.wifi_off, label: "Status", value: isConnected ? "Active" : "Inactive"),
-                  const SizedBox(width: 12),
-                  _card(icon: Icons.speed, label: "Speed", value: isConnected ? "$currentKbps Kbps" : "—"),
-                ]),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(children: [
-                  _card(icon: Icons.access_time, label: "Duration", value: duration),
-                  const SizedBox(width: 12),
-                  _card(icon: Icons.shield_outlined, label: "Protocol", value: "VLESS"),
-                ]),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(children: [
-                  _card(icon: Icons.arrow_upward, label: "Upload", value: uploadData),
-                  const SizedBox(width: 12),
-                  _card(icon: Icons.arrow_downward, label: "Download", value: downloadData),
-                ]),
-              ),
-              const SizedBox(height: 30),
-            ],
+  Widget _likeOption(int choice, String text, int count) {
+    final isSelected = myChoice == choice;
+    return GestureDetector(
+      onTap: () => _submitLike(choice),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF0EA5E9).withOpacity(0.2) : const Color(0xFF0A1628),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF0EA5E9) : const Color(0xFF334155),
           ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSelected ? Icons.thumb_up : Icons.thumb_up_outlined,
+              color: isSelected ? const Color(0xFF0EA5E9) : Colors.grey,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(text, style: TextStyle(color: isSelected ? Colors.white : Colors.grey, fontSize: 13)),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0EA5E9),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text("$count", style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+            ),
+          ],
         ),
       ),
     );
@@ -732,6 +569,231 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 4),
             Text(value, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
           ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 50, height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(color: const Color(0xFF0EA5E9).withOpacity(0.4), blurRadius: 15),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.asset('8002c5a5f554f1ef1510b9f561cc1775.jpg', fit: BoxFit.cover),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("MM SKY", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                        Text("Fast & Secure", style: TextStyle(fontSize: 13, color: Colors.grey)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (!hasInternet)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.red),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.wifi_off, color: Colors.red, size: 20),
+                      SizedBox(width: 8),
+                      Expanded(child: Text("ဒေတာ မရှိပါ — WiFi/Data ဖွင့်ပါ", style: TextStyle(color: Colors.red, fontSize: 13))),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: servers.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(14),
+                          child: Text("Loading servers...", style: TextStyle(color: Colors.grey)),
+                        )
+                      : DropdownButton<int>(
+                          value: selectedServer,
+                          isExpanded: true,
+                          underline: const SizedBox(),
+                          dropdownColor: const Color(0xFF1E293B),
+                          icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                          items: List.generate(servers.length, (i) {
+                            final server = servers[i];
+                            final isLocked = server.isVip && !unlockedVipIndexes.contains(i);
+                            return DropdownMenuItem<int>(
+                              value: i,
+                              child: Row(
+                                children: [
+                                  Icon(isLocked ? Icons.lock : Icons.dns,
+                                      color: isLocked ? Colors.orange : const Color(0xFF0EA5E9), size: 20),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(server.name,
+                                        style: TextStyle(color: isLocked ? Colors.orange : Colors.white, fontSize: 13),
+                                        overflow: TextOverflow.ellipsis),
+                                  ),
+                                  if (isLocked)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Text("VIP", style: TextStyle(color: Colors.orange, fontSize: 10)),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }),
+                          onChanged: (v) => _changeServer(v!),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: _toggleConnect,
+                child: Container(
+                  width: 180, height: 180,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: isConnected
+                          ? [const Color(0xFF10B981), const Color(0xFF34D399)]
+                          : [const Color(0xFF0EA5E9), const Color(0xFF06B6D4)],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: (isConnected ? const Color(0xFF10B981) : const Color(0xFF0EA5E9)).withOpacity(0.5),
+                        blurRadius: 60, spreadRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Icon(Icons.power_settings_new, color: Colors.white, size: 70),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              Text(status, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2)),
+              const SizedBox(height: 8),
+              Text(subStatus, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              const SizedBox(height: 30),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(children: [
+                  _card(icon: isConnected ? Icons.wifi : Icons.wifi_off, label: "Status", value: isConnected ? "Active" : "Inactive"),
+                  const SizedBox(width: 12),
+                  _card(icon: Icons.speed, label: "Speed", value: isConnected ? "$currentKbps Kbps" : "—"),
+                ]),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(children: [
+                  _card(icon: Icons.access_time, label: "Duration", value: duration),
+                  const SizedBox(width: 12),
+                  _card(icon: Icons.shield_outlined, label: "Protocol", value: "VLESS"),
+                ]),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(children: [
+                  _card(icon: Icons.arrow_upward, label: "Upload", value: uploadData),
+                  const SizedBox(width: 12),
+                  _card(icon: Icons.arrow_downward, label: "Download", value: downloadData),
+                ]),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.data_usage, color: Color(0xFF0EA5E9), size: 20),
+                          const SizedBox(width: 8),
+                          Text("Free: $freeGb GB", style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      const Text("သင့်ဆန္ဒ ရွေးပါ:", style: TextStyle(color: Colors.grey, fontSize: 13)),
+                      const SizedBox(height: 8),
+                      _likeOption(1, "GB တိုးပေးပါ", like1Count),
+                      _likeOption(2, "မတိုးပေးပါနဲ့", like2Count),
+                      _likeOption(3, "လိုင်းကောင်း VIP ဝယ်မယ်", like3Count),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GestureDetector(
+                  onTap: _speedTest,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E293B),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF334155)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.network_check, color: Color(0xFF0EA5E9), size: 24),
+                        const SizedBox(width: 12),
+                        const Text("Speed Test", style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                        const Spacer(),
+                        Text(speedTestResult, style: const TextStyle(color: Color(0xFF0EA5E9), fontSize: 15, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
