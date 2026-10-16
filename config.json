@@ -5,5 +5,74 @@
   "messenger": "https://www.facebook.com/share/1CN89ohAwG/",
   "pricing_1month": "5,000 MMK",
   "pricing_3months": "23,000 MMK",
-  "pricing_1year": "80,000 MMK"
+  "pricing_1year": "80,000 MMK",
+  "free_gb": "10",
+  "servers": [
+    {
+      "name": "🇲🇲 MY-Myanmar Free saver",
+      "key": "vless://204fe4cf-b966-4016-9bc5-2b808023292c@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#Free",
+      "isVip": false,
+      "password": ""
+    },
+    {
+      "name": "🔒 🇲🇲 MY-Myanmar vip saver 1",
+      "key": "vless://e02f3e4c-8d62-4f16-ccb8-8a2ccda98798@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP1",
+      "isVip": true,
+      "password": "1VIPA"
+    },
+    {
+      "name": "🔒 🇲🇲 MY-myanmar vip saver 2",
+      "key": "vless://df9431da-337d-47b2-9136-6d4c68f97378@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP2",
+      "isVip": true,
+      "password": "2VIPL"
+    },
+    {
+      "name": "🔒 🇲🇲 MY-Myanmar vip saver 3",
+      "key": "vless://814faac7-7c69-4d0b-ebb9-24f793c71e1c@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP3",
+      "isVip": true,
+      "password": "3VIPU"
+    },
+    {
+      "name": "🔒 🇲🇲 MY-Myanmar vip saver 4",
+      "key": "vless://6f02e53b-8ce8-42a2-9cd8-52c567889104@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP4",
+      "isVip": true,
+      "password": "4VIPC"
+    },
+    {
+      "name": "🔒 🇲🇲 MY-Myanmar vip saver 5",
+      "key": "vless://a495c3dc-3b6b-45bb-eedf-267396ab0042@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP5",
+      "isVip": true,
+      "password": "5VIPA"
+    },
+    {
+      "name": "🔒 🇲🇲 MY-Myanmar vip save 6",
+      "key": "vless://898d7854-6be2-4550-f236-b8a6f35217b6@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP6",
+      "isVip": true,
+      "password": "6VIPR"
+    },
+    {
+      "name": "🔒 🇲🇲 MY-Myanmar vip saver 7",
+      "key": "vless://00d11f4d-91c4-48f2-963f-0d85c4e6c848@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP7",
+      "isVip": true,
+      "password": "7VIPD"
+    },
+    {
+      "name": "🔒 🇲🇲 MY-Myanmar vip saver 8",
+      "key": "vless://b2ee1e27-c7f9-4d5e-f125-b39d49ecea03@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP8",
+      "isVip": true,
+      "password": "8VIPY"
+    },
+    {
+      "name": "🔒 🇲🇲 MY-Myanmar vip saver 9",
+      "key": "vless://3158cc62-c2fc-49e9-dffd-38818d93d415@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP9",
+      "isVip": true,
+      "password": "9VIPU"
+    },
+    {
+      "name": "🔒 🇲🇲 MY-Myanmar vip saver 10",
+      "key": "vless://b9627f95-56cb-46e3-d280-e67192860052@203.159.93.210:443?type=ws&encryption=none&path=%2F&host=black.mainu.site&security=tls&fp=chrome&alpn=h3%2Ch2%2Chttp%2F1.1&sni=black.mainu.site#VIP10",
+      "isVip": true,
+      "password": "10VIPZ"
+    }
+  ]
 }
