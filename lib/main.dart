@@ -59,6 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String kpayNumber = "09698624401";
   String kpayName = "San Dar Soe";
   String telegramUser = "@VIPkey90";
+  String telegramChannel = "https://t.me/FreekeytoVip";
+  String telegramChannelName = "FREE VPN KEY";
   String messengerLink = "https://www.facebook.com/share/1CN89ohAwG/";
   String pricing1Month = "5,000 MMK";
   String pricing3Months = "23,000 MMK";
@@ -207,6 +209,8 @@ class _HomeScreenState extends State<HomeScreen> {
           kpayNumber = data['kpay'] ?? kpayNumber;
           kpayName = data['kpay_name'] ?? kpayName;
           telegramUser = data['telegram'] ?? telegramUser;
+          telegramChannel = data['telegram_channel'] ?? telegramChannel;
+          telegramChannelName = data['telegram_channel_name'] ?? telegramChannelName;
           messengerLink = data['messenger'] ?? messengerLink;
           pricing1Month = data['pricing_1month'] ?? pricing1Month;
           pricing3Months = data['pricing_3months'] ?? pricing3Months;
@@ -346,6 +350,17 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Telegram ဖွင့်လို့ မရပါ: $e")),
+      );
+    }
+  }
+
+  Future<void> _openChannel() async {
+    try {
+      final url = Uri.parse(telegramChannel);
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Channel ဖွင့်လို့ မရပါ: $e")),
       );
     }
   }
@@ -758,6 +773,54 @@ class _HomeScreenState extends State<HomeScreen> {
                       _likeOption(1, "GB တိုးပေးပါ", like1Count),
                       _likeOption(2, "မတိုးပေးပါနဲ့", like2Count),
                       _likeOption(3, "လိုင်းကောင်း VIP ဝယ်မယ်", like3Count),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: _openChannel,
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF0088CC), Color(0xFF00B4D8)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44, height: 44,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.send,
+                                    color: Color(0xFF0088CC), size: 24),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(telegramChannelName,
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      "Free GB တိုးချင်ရင် Channel Join ပြီး ပြောပါ",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios,
+                                  color: Colors.white, size: 16),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
