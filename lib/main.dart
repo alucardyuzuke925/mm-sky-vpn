@@ -7,14 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const MMSkyVPN());
-}
+void main() => runApp(const MMSkyVPN());
 
 class MMSkyVPN extends StatelessWidget {
   const MMSkyVPN({super.key});
@@ -124,9 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _initNotifications();
     _loadUnlockedVips();
     _loadMyChoice();
+    _loadLikes();
     _checkInternet();
     _fetchConfig();
-    _listenLikes();
     _startTimer();
   }
 
@@ -172,6 +166,38 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => myChoice = prefs.getInt('my_choice') ?? 0);
   }
 
+  Future<void> _loadLikes() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      like1Count = prefs.getInt('like1') ?? 0;
+      like2Count = prefs.getInt('like2') ?? 0;
+      like3Count = prefs.getInt('like3') ?? 0;
+    });
+  }
+
+  Future<void> _saveLikes() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('like1', like1Count);
+    await prefs.setInt('like2', like2Count);
+    await prefs.setInt('like3', like3Count);
+  }
+
+  Future<void> _submitLike(int choice) async {
+    if (myChoice == choice) return;
+    setState(() {
+      if (myChoice == 1) like1Count--;
+      if (myChoice == 2) like2Count--;
+      if (myChoice == 3) like3Count--;
+      if (choice == 1) like1Count++;
+      if (choice == 2) like2Count++;
+      if (choice == 3) like3Count++;
+      myChoice = choice;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('my_choice', choice);
+    await _saveLikes();
+  }
+
   Future<void> _fetchConfig() async {
     try {
       final response = await http.get(Uri.parse(configUrl));
@@ -193,37 +219,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {}
-  }
-
-  void _listenLikes() {
-    final ref = FirebaseDatabase.instance.ref('likes');
-    ref.onValue.listen((event) {
-      if (!mounted) return;
-      final data = event.snapshot.value as Map?;
-      if (data != null) {
-        setState(() {
-          like1Count = data['like1'] ?? 0;
-          like2Count = data['like2'] ?? 0;
-          like3Count = data['like3'] ?? 0;
-        });
-      }
-    });
-  }
-
-  Future<void> _submitLike(int choice) async {
-    final ref = FirebaseDatabase.instance.ref('likes');
-    final prefs = await SharedPreferences.getInstance();
-    final oldChoice = prefs.getInt('my_choice') ?? 0;
-    if (oldChoice != 0) {
-      final old = await ref.child('like$oldChoice').get();
-      if (old.exists && (old.value as int) > 0) {
-        await ref.child('like$oldChoice').set((old.value as int) - 1);
-      }
-    }
-    final cur = await ref.child('like$choice').get();
-    await ref.child('like$choice').set(((cur.value as int?) ?? 0) + 1);
-    await prefs.setInt('my_choice', choice);
-    setState(() => myChoice = choice);
   }
 
   Future<bool> _checkInternet() async {
